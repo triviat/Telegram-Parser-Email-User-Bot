@@ -92,6 +92,9 @@ async def get_chats_and_channels():
 async def start_sending_messages():
     file_name = await get_file_name()
     message = await get_message()
+    user_delay = await get_user_delay()
+    time_delay = await get_time_delay()
+
     with open(file_name) as f_users:
         users = [user.strip() for user in f_users.readlines()]
 
@@ -100,6 +103,10 @@ async def start_sending_messages():
     for user in users:
         if await send_message(user, message):
             counter += 1
+            if (user_delay > 0) and (counter % user_delay == 0):
+                print(f'Отправил сообщение {user_delay} пользователям и встал на паузу в {time_delay} секунд...')
+                sleep(time_delay)
+
     print('Закончил.')
     print(f'Сообщение было отправлено {counter} пользователям из {len(users)}\n')
 
@@ -130,6 +137,22 @@ async def get_message():
             return message
         else:
             message = input('Нельзя отправить пустое сообщение. Введите пожалуйста другое: ')
+
+
+async def get_time_delay():
+    try:
+        delay = float(input('Укажите время задержки: '))
+        return delay
+    except ValueError:
+        return -1
+
+
+async def get_user_delay():
+    try:
+        delay = int(input('Укажите через какое количество аккаунтов выполнять задержку: '))
+        return delay
+    except ValueError:
+        return -1
 
 
 async def main():
